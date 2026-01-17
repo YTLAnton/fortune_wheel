@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>命運之輪 (Fortune's Wheel)</title>
+
+    <!-- Google Fonts: Noto Sans TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Cinzel:wght@700&display=swap"
+        rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                    },
+                    colors: {
+                        'fw-bg': '#0f172a',    // Dark background
+                        'fw-card': '#1e293b',  // Card background
+                        'fw-accent': '#10b981', // Emerald green (Success/Leaf)
+                        'fw-gold': '#f59e0b',   // Gold (Jackpot)
+                        'fw-danger': '#ef4444', // Red (Danger/Loss)
+                        'fw-neon': '#00ff9d',   // Neon green highlight
+                    },
+                    animation: {
+                        'spin-slow': 'spin 3s linear infinite',
+                        'bounce-short': 'bounce 1s infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body
+    class="bg-fw-bg text-gray-100 font-sans h-screen flex flex-col overflow-hidden selection:bg-fw-neon selection:text-black">
+
+    <!-- HEADER -->
+    <header
+        class="bg-fw-card border-b border-gray-700 h-14 sm:h-16 flex items-center justify-between px-3 sm:px-6 shadow-lg z-20">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <i class="fa-solid fa-dharmachakra fa-spin-pulse text-fw-neon text-xl sm:text-2xl"></i>
+            <h1
+                class="text-base sm:text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-fw-neon to-blue-500">
+                命運之輪
+            </h1>
+        </div>
+
+        <!-- Player Stats -->
+        <div
+            class="flex items-center gap-2 sm:gap-6 bg-gray-900/50 px-2 sm:px-4 py-1.5 sm:py-2 rounded-full border border-gray-700">
+            <div class="flex items-center gap-1 sm:gap-2">
+                <i class="fa-solid fa-leaf text-fw-accent text-sm sm:text-base"></i>
+                <span class="text-xs sm:text-sm text-gray-400 hidden sm:inline">刃藤葉:</span>
+                <span id="leaf-count" class="font-mono text-sm sm:text-lg font-bold text-fw-accent">100</span>
+            </div>
+            <div class="w-px h-3 sm:h-4 bg-gray-700"></div>
+            <div class="flex items-center gap-1 sm:gap-2">
+                <i class="fa-solid fa-heart text-fw-danger text-sm sm:text-base"></i>
+                <span class="text-xs sm:text-sm text-gray-400 hidden sm:inline">生命值:</span>
+                <span id="hp-count" class="font-mono text-sm sm:text-lg font-bold text-fw-danger">20</span>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Toggle (Hidden on desktop) -->
+        <button id="menu-btn"
+            class="md:hidden text-gray-300 hover:text-white active:text-fw-neon w-10 h-10 flex items-center justify-center">
+            <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+    </header>
+
+    <!-- Mobile Navigation Backdrop -->
+    <div id="nav-backdrop"
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm z-30 hidden md:hidden transition-opacity duration-300"></div>
+
+    <div class="flex-1 flex overflow-hidden">
+        <!-- Sidebar / Game Selection -->
+        <nav class="fixed md:relative w-64 sm:w-72 md:w-64 bg-fw-card border-r border-gray-700 flex-shrink-0 flex flex-col h-full z-40 md:z-auto transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out"
+            id="main-nav">
+            <!-- Mobile Nav Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-700 md:border-0">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Casino Floor</span>
+                <button id="close-nav-btn"
+                    class="md:hidden text-gray-400 hover:text-white w-8 h-8 flex items-center justify-center">
+                    <i class="fa-solid fa-times text-lg"></i>
+                </button>
+            </div>
+            <ul class="flex-1 space-y-1 px-2 py-2 overflow-y-auto custom-scrollbar">
+                <li>
+                    <button
+                        class="nav-item w-full flex items-center gap-3 px-3 py-3 sm:py-2.5 rounded-lg bg-gray-800 text-white font-medium border border-gray-600 shadow-sm active:scale-95 transition-transform"
+                        data-game="dashboard">
+                        <div
+                            class="w-8 h-8 sm:w-6 sm:h-6 rounded flex items-center justify-center bg-blue-500/20 text-blue-400">
+                            <i class="fa-solid fa-house"></i>
+                        </div>
+                        <span class="text-sm sm:text-base">大廳 (Lobby)</span>
+                    </button>
+                </li>
+                <li>
+                    <button
+                        class="nav-item w-full flex items-center gap-3 px-3 py-3 sm:py-2.5 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white active:bg-gray-800 active:text-white transition-colors active:scale-95"
+                        data-game="slots">
+                        <div
+                            class="w-10 h-10 sm:w-8 sm:h-8 rounded overflow-hidden border border-gray-600 flex-shrink-0">
+                            <img src="assets/thumb_slots.png" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-sm sm:text-base">吃角子機 (Slots)</span>
+                    </button>
+                </li>
+                <li>
+                    <button
+                        class="nav-item w-full flex items-center gap-3 px-3 py-3 sm:py-2.5 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white active:bg-gray-800 active:text-white transition-colors active:scale-95"
+                        data-game="dead-hand">
+                        <div
+                            class="w-10 h-10 sm:w-8 sm:h-8 rounded overflow-hidden border border-gray-600 flex-shrink-0">
+                            <img src="assets/thumb_dead_hand.png" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-sm sm:text-base">賭命骨骰 (Dead Hand)</span>
+                    </button>
+                </li>
+                <li>
+                    <button
+                        class="nav-item w-full flex items-center gap-3 px-3 py-3 sm:py-2.5 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white active:bg-gray-800 active:text-white transition-colors active:scale-95"
+                        data-game="olidammara">
+                        <div
+                            class="w-10 h-10 sm:w-8 sm:h-8 rounded overflow-hidden border border-gray-600 flex-shrink-0">
+                            <img src="assets/thumb_olidammara.png" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-sm sm:text-base">渥利達馬拉 (Olidammara)</span>
+                    </button>
+                </li>
+                <li>
+                    <button
+                        class="nav-item w-full flex items-center gap-3 px-3 py-3 sm:py-2.5 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white active:bg-gray-800 active:text-white transition-colors active:scale-95"
+                        data-game="micro-arena">
+                        <div
+                            class="w-10 h-10 sm:w-8 sm:h-8 rounded overflow-hidden border border-gray-600 flex-shrink-0">
+                            <img src="assets/thumb_micro_arena.png" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-sm sm:text-base">微觀競技場 (Arena)</span>
+                    </button>
+                </li>
+                <li>
+                    <button
+                        class="nav-item w-full flex items-center gap-3 px-3 py-3 sm:py-2.5 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white active:bg-gray-800 active:text-white transition-colors active:scale-95"
+                        data-game="illithid">
+                        <div
+                            class="w-10 h-10 sm:w-8 sm:h-8 rounded overflow-hidden border border-gray-600 flex-shrink-0">
+                            <img src="assets/thumb_illithid.png" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-sm sm:text-base">靈吸怪的慾望 (Illithid)</span>
+                    </button>
+                </li>
+                <li>
+                    <button
+                        class="nav-item w-full flex items-center gap-3 px-3 py-3 sm:py-2.5 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white active:bg-gray-800 active:text-white transition-colors active:scale-95"
+                        data-game="dragon-roar">
+                        <div
+                            class="w-10 h-10 sm:w-8 sm:h-8 rounded overflow-hidden border border-gray-600 flex-shrink-0">
+                            <img src="assets/thumb_dragon_roar.png" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-sm sm:text-base">龍吼骰 (Dragon Roar)</span>
+                    </button>
+                </li>
+                <li>
+                    <button
+                        class="nav-item w-full flex items-center gap-3 px-3 py-3 sm:py-2.5 rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white active:bg-gray-800 active:text-white transition-colors active:scale-95"
+                        data-game="loki">
+                        <div
+                            class="w-10 h-10 sm:w-8 sm:h-8 rounded overflow-hidden border border-gray-600 flex-shrink-0">
+                            <img src="assets/thumb_loki.png" class="w-full h-full object-cover">
+                        </div>
+                        <span class="text-sm sm:text-base">洛基的獰笑 (Loki)</span>
+                    </button>
+                </li>
+            </ul>
+
+
+        </nav>
+
+        <!-- Main Content Area -->
+        <main id="game-container" class="flex-1 relative overflow-y-auto bg-gray-900 custom-scrollbar p-0">
+            <!-- Dynamic Content Injected Here -->
+            <div id="active-screen"
+                class="min-h-full p-4 sm:p-6 md:p-10 flex flex-col items-center justify-center text-center space-y-4 sm:space-y-6">
+
+                <div class="relative w-full max-w-2xl mx-auto mb-4 sm:mb-8 group cursor-pointer animate-fade-in">
+                    <div
+                        class="absolute inset-0 bg-fw-neon/20 rounded-xl blur-xl group-hover:bg-fw-neon/40 group-active:bg-fw-neon/40 transition-all duration-500">
+                    </div>
+                    <img src="assets/hero_main.png" alt="Fortune's Wheel Casino"
+                        class="relative z-10 w-full rounded-xl shadow-2xl border border-gray-700 group-hover:scale-[1.02] group-active:scale-[1.02] transition-transform duration-700">
+                </div>
+
+                <div class="space-y-2 max-w-lg mx-auto mb-4 sm:mb-8">
+                    <h2 class="text-2xl sm:text-3xl md:text-5xl font-bold text-white tracking-widest uppercase drop-shadow-lg"
+                        style="font-family: 'Cinzel', serif;">命運之輪</h2>
+                    <p
+                        class="text-fw-neon text-base sm:text-lg tracking-widest font-light border-t border-b border-fw-neon/30 py-2 inline-block">
+                        命運眷顧勇者</p>
+                </div>
+
+
+
+            </div>
+        </main>
+
+        <!-- GM Control Panel (Overlay) -->
+        <aside id="gm-panel"
+            class="absolute top-0 right-0 h-full w-full sm:w-80 bg-black/95 border-l border-red-900/50 backdrop-blur-md transform translate-x-full transition-transform duration-300 z-50 p-4 sm:p-6 overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-red-500 font-bold text-lg border-b border-red-900 pb-2 w-full"><i
+                        class="fa-solid fa-dungeon mr-2"></i>DM Controls</h3>
+                <button id="close-gm" class="text-gray-500 hover:text-white"><i class="fa-solid fa-times"></i></button>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Fate Manipulation -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-gray-500 uppercase">強制結果 (Fate Override)</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="number" placeholder="D1"
+                            class="gm-input bg-gray-900 border border-gray-700 rounded p-2 text-center text-white focus:border-red-500 outline-none">
+                        <input type="number" placeholder="D2"
+                            class="gm-input bg-gray-900 border border-gray-700 rounded p-2 text-center text-white focus:border-red-500 outline-none">
+                        <input type="number" placeholder="D3"
+                            class="gm-input bg-gray-900 border border-gray-700 rounded p-2 text-center text-white focus:border-red-500 outline-none">
+                    </div>
+                    <button
+                        class="w-full bg-red-900/40 hover:bg-red-900/60 text-red-400 border border-red-900/50 rounded py-2 text-sm font-bold transition-colors">
+                        <i class="fa-solid fa-bolt mr-2"></i>Apply Next Roll
+                    </button>
+                </div>
+
+                <!-- Currency Control -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-gray-500 uppercase">玩家資源 (Player Stats)</label>
+                    <div class="flex gap-2">
+                        <button
+                            class="flex-1 bg-green-900/30 text-green-400 border border-green-900 rounded py-1 hover:bg-green-900/50">+10
+                            刃藤</button>
+                        <button
+                            class="flex-1 bg-red-900/30 text-red-400 border border-red-900 rounded py-1 hover:bg-red-900/50">-10
+                            HP</button>
+                    </div>
+                </div>
+
+                <!-- Log -->
+                <div class="mt-8">
+                    <label class="text-xs font-bold text-gray-500 uppercase">System Log</label>
+                    <div id="gm-log"
+                        class="h-40 bg-gray-900 rounded p-2 text-xs font-mono text-green-500 overflow-y-auto mt-1 border border-gray-800">
+                        > System initialized...<br>
+                        > Waiting for player...
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Main Logic -->
+    <script src="games/slots.js"></script>
+    <script src="games/dead_hand.js"></script>
+    <script src="games/olidammara.js"></script>
+    <script src="games/micro_arena.js"></script>
+    <script src="games/illithid.js"></script>
+    <script src="games/dragon_roar.js"></script>
+    <script src="games/loki.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

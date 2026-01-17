@@ -158,6 +158,12 @@ html {
         font-size: 14px;
         line-height: 1.5;
     }
+
+    /* Optimize hero image for mobile */
+    #active-screen img[src*="hero_main"] {
+        max-height: 50vh;
+        object-fit: contain;
+    }
 }
 
 /* Tablet Breakpoint */

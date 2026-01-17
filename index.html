@@ -47,11 +47,11 @@
 </head>
 
 <body
-    class="bg-fw-bg text-gray-100 font-sans h-screen flex flex-col overflow-hidden selection:bg-fw-neon selection:text-black">
+    class="bg-fw-bg text-gray-100 font-sans h-screen flex flex-col overflow-hidden overflow-x-hidden selection:bg-fw-neon selection:text-black">
 
     <!-- HEADER -->
     <header
-        class="bg-fw-card border-b border-gray-700 h-14 sm:h-16 flex items-center justify-between px-3 sm:px-6 shadow-lg z-20">
+        class="bg-fw-card border-b border-gray-700 h-14 sm:h-16 flex items-center justify-between px-4 sm:px-6 shadow-lg z-20">
         <div class="flex items-center gap-2 sm:gap-3">
             <i class="fa-solid fa-dharmachakra fa-spin-pulse text-fw-neon text-xl sm:text-2xl"></i>
             <h1
@@ -199,12 +199,12 @@
             <div id="active-screen"
                 class="min-h-full p-4 sm:p-6 md:p-10 flex flex-col items-center justify-center text-center space-y-4 sm:space-y-6">
 
-                <div class="relative w-full max-w-2xl mx-auto mb-4 sm:mb-8 group cursor-pointer animate-fade-in">
+                <div class="relative w-full max-w-2xl mx-auto mb-4 sm:mb-8 group cursor-pointer animate-fade-in max-h-[50vh] sm:max-h-none">
                     <div
                         class="absolute inset-0 bg-fw-neon/20 rounded-xl blur-xl group-hover:bg-fw-neon/40 group-active:bg-fw-neon/40 transition-all duration-500">
                     </div>
                     <img src="assets/hero_main.png" alt="Fortune's Wheel Casino"
-                        class="relative z-10 w-full rounded-xl shadow-2xl border border-gray-700 group-hover:scale-[1.02] group-active:scale-[1.02] transition-transform duration-700">
+                        class="relative z-10 w-full h-full object-contain rounded-xl shadow-2xl border border-gray-700 group-hover:scale-[1.02] group-active:scale-[1.02] transition-transform duration-700">
                 </div>
 
                 <div class="space-y-2 max-w-lg mx-auto mb-4 sm:mb-8">
@@ -222,7 +222,7 @@
 
         <!-- GM Control Panel (Overlay) -->
         <aside id="gm-panel"
-            class="absolute top-0 right-0 h-full w-full sm:w-80 bg-black/95 border-l border-red-900/50 backdrop-blur-md transform translate-x-full transition-transform duration-300 z-50 p-4 sm:p-6 overflow-y-auto custom-scrollbar">
+            class="fixed top-0 right-0 h-full w-full sm:w-80 bg-black/95 border-l border-red-900/50 backdrop-blur-md transform translate-x-full transition-transform duration-300 z-50 p-4 sm:p-6 overflow-y-auto custom-scrollbar">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-red-500 font-bold text-lg border-b border-red-900 pb-2 w-full"><i
                         class="fa-solid fa-dungeon mr-2"></i>DM Controls</h3>
